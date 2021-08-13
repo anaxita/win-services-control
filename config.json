@@ -1,0 +1,6 @@
+{
+  "port": "8099",
+  "allow_services": [
+    "Apache2.4"
+  ]
+}

@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Services</title>
+</head>
+
+<body>
+    <style>
+        * {
+            padding: 0;
+            margin: 0;
+        }
+
+        .block {
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            opacity: 0.5;
+            background: black;
+            transition: 0.5s;
+            z-index: 1;
+        }
+
+        .d-none {
+            display: none;
+        }
+        body {
+            background: rgb(41, 58, 58);
+        }
+
+        .bg-red {
+            background-color: red;
+        }
+
+        button {
+            border: none;
+            background: gold;
+
+            padding: 8px 16px;
+            border-radius: 6px;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background: rgb(0, 110, 255);
+
+            transition: 0.3s;
+        }
+
+        button:focus {
+            background: rgb(0, 110, 255);
+        }
+
+        button:disabled {
+            background: rgb(106, 96, 96);
+
+            transition: 0.3s;
+        }
+
+        .btn-start {
+            background-color: rgb(44, 216, 44);
+
+        }
+
+        .btn-stop {
+            background-color: red;
+        }
+        .container {
+            padding: 30px;
+            color: ghostwhite;
+        }
+
+        .services {
+            display: grid;
+            gap: 16px;
+        }
+
+        .service {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            border: 1px solid rgb(87, 122, 122);
+            /* justify-self: start; */
+            padding: 8px 16px;
+            border-radius: 6px;
+
+        }
+
+        .service>span {
+            width: 33%;
+            padding: 0 16px;
+        }
+
+        .service:hover {
+            background-color: rgb(87, 122, 122);
+        }
+
+
+    </style>
+
+    <div class="container">
+        <div class="block d-none" id="preloader">Loading ...</div>
+        <div class="controls">
+            <h3>Control Windows Serivces</h3>
+        </div>
+        <div class="services" id="services">
+        </div>
+    </div>
+
+    <script>
+        let services = document.getElementById("services")
+        let preloader = document.getElementById("preloader")
+
+        function control(e) {
+            e.preventDefault()
+            preloader.classList.toggle("d-none")
+            const action = e.target.dataset.action
+            const service = e.target.dataset.service
+
+                fetch("/control", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "applocation/json"
+                    },
+                    body: JSON.stringify({ action, service })
+                })
+                .then(r => {
+                    if (r.status == 200) {
+                        alert("Выполнено успешно")
+                        window.location.reload();
+                        
+                        return
+                    }
+                })
+                .catch((e) => {
+                    alert("Error control service", e.message)
+                    window.location.reload();
+                })
+                
+        }
+
+
+        function getServices(e) {
+            fetch("/services")
+                .then(r => r.json())
+                .then((r) => {
+                    console.log("got json");
+                    r.forEach((el) => {
+                        const service = `<div class="service" >
+            <span>${el.name}</span>
+            <span>${el.display_name}</span>
+            <span>${el.state}</span>
+            <span>
+            <button class="btn-stop" type="button" data-action="stop" data-service=${el.name}>Stop</button>
+            <button class="btn-start" type="button" data-action="start" data-service=${el.name}>Start</button>
+            </span>
+        </div>`
+                        services.insertAdjacentHTML("afterbegin",service)
+
+                        const buttons = document.querySelectorAll("button")
+                        buttons.forEach((b) => {
+                            b.addEventListener('click', control)
+                        })
+                    })
+
+                })
+            // .catch((e) => {
+            //     console.log("error get json", e.message);
+            //     alert("Ошибка запроса", e)
+            // })
+        }
+
+        getServices()
+    </script>
+</body>
+
+</html>
